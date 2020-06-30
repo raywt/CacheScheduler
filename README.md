@@ -9,5 +9,5 @@ Installation
 ------------
 
 To install CacheScheduler, download and extract the
-[master zip archive][download] and move the extracted folder to
+[master zip archive](https://github.com/raywt/CacheScheduler/archive/master.zip) and move the extracted folder to
 *app/code/Raywt/CacheScheduler* in your Magento 2 installation directory.
