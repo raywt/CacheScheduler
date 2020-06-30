@@ -1,5 +1,4 @@
 # Cache Scheduler
-=================
 
 *Cache Scheduler* is a Magento 2 module to schedule cleaning the cache as a cron task.
 Useful for occasions in the future when you know that the cache is going 
