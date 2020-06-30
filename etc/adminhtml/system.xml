@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Config/etc/system_file.xsd">
+    <system>
+        <tab id="raywt" translate="label" sortOrder="10">
+            <label>Raywt</label>
+        </tab>
+        <section id="cache_scheduler" translate="label" type="text" sortOrder="300" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Cache Scheduler</label>
+            <tab>raywt</tab>
+            <resource>Raywt_CacheScheduler::config</resource>
+            <group id="cron" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Cron</label>
+                <field id="enable_schedule" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Cache Schedule</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Select whether to enable the schedule</comment>
+                </field>
+                <field id="schedule" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Cache schedule</label>
+                    <comment><![CDATA[ Format: * * * * * . Test yours at <a href="https://crontab.guru/" target="_blank">https://crontab.guru/</a>. ]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
