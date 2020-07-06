@@ -1,13 +1,14 @@
 <?php
 
-namespace Raywt\CacheScheduler\Cron;
+namespace JoE\CacheScheduler\Cron;
 
 use Magento\Backend\App\Action\Context as Context;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Cache\Manager as CacheManager;
+use Magento\Framework\Event\ManagerInterface as ManagerInterface;
 use Magento\Framework\App\Cache\TypeListInterface as CacheTypeListInterface;
 use Psr\Log\LoggerInterface as Logger;
-use Raywt\CacheScheduler\Helper\Config as ConfigHelper;
+use JoE\CacheScheduler\Helper\Config as ConfigHelper;
 
 class Run 
 {
@@ -27,36 +28,40 @@ class Run
     protected $_cacheManager;
 
     /**
-     * @var Raywt\CacheScheduler\Helper\Config
+     * @var JoE\CacheScheduler\Helper\Config
      */
     protected $_configHelper;
+
+    /**
+     * @var Magento\Framework\Event\ManagerInterface
+     */
+    protected $_managerInterface;
 
     /**
      * @param Logger $logger
      * @param Context $context
      * @param CacheTypeListInterface $cacheTypeList
+     * @param Pool $cacheFrontendPool
      * @param CacheManager $cacheManager
      * @param ConfigHelper $configHelper
+     * @param ManagerInterface $managerInterface
      */
     public function __construct(
         Logger $logger,
         Context $context,
         CacheTypeListInterface $cacheTypeList,
         CacheManager $cacheManager,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        ManagerInterface $managerInterface
     ) 
     {
         $this->_logger = $logger;
         $this->_cacheTypeList = $cacheTypeList;
         $this->_cacheManager = $cacheManager;
         $this->_configHelper = $configHelper;
+        $this->_managerInterface = $managerInterface;
     }
 
-    /**
-     * Not used. Might be used in a future version.
-     *
-     * @return void
-     */
     public function cleanInvalidatedCaches()
     {
         $invalidcache = $this->_cacheTypeList->getInvalidated();
@@ -65,21 +70,11 @@ class Run
         }
     }
 
-    /**
-     * Check whether module is enabled
-     *
-     * @return boolean
-     */
     public function getEnableStatus()
     {
         return $this->_configHelper->getEnabledSchedule();
     }
 
-    /**
-     * Get array of caches
-     *
-     * @return Array
-     */
     public function getCaches()
     {
         $caches = $this->_cacheManager->getAvailableTypes();
@@ -91,36 +86,19 @@ class Run
         return $cachelist;
     }
 
-    /**
-     * Clean all caches.
-     *
-     * @return void
-     */
     public function cleanAllCaches()
     {
-        //$this->cacheManager->flush($this->cacheManager->getAvailableTypes());
-
-        $this->_cacheManager->clean($this->_cacheManager->getAvailableTypes());
+        $this->_managerInterface->dispatch('adminhtml_cache_flush_all');
+        $this->_cacheManager->flush($this->_cacheManager->getAvailableTypes());
     }
 
-    /**
-     * Clean all caches cron action
-     *
-     * @return void
-     */
     public function execute()
     {
         if($this->getEnableStatus())
         {
-            try {
-                $this->cleanAllCaches();
-                $this->_logger->debug('Scheduled Cache Clean has been run.');
-            } catch(\Magento\Framework\Exception\LocalizedException $e) {
-                $this->_logger->debug('Schedled Cache Clean failed: ' . $e->getMessage());
-            } catch (\Exception $e) {
-                $this->_logger->debug('Schedled Cache Clean failed.');
-            }
-            
+            $this->_logger->debug('CacheScheduler about to flush caches');
+            $this->cleanAllCaches();
+            $this->_logger->debug('CacheScheduler Cache cleaned on schedule');
         }
         return $this;
     }
